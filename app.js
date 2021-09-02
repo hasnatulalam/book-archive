@@ -1,66 +1,61 @@
-const result=document.getElementById('error-message').style.display = 'none';
+// document.getElementById('error-message').style.display = 'none';
+const searchBook = () => {
+    const searchInput = document.getElementById('searchInput')
+    const searchText = searchInput.value
+    // clear data
+    searchInput.value = ''
+    // console.log(search)
 
-const searchBook=()=>{
-    const searchField =document.getElementById('search-field')
-    const searchText =searchField.value;
-     searchField.value='';
-    document.getElementById('error-message').style.display = 'none';
-    if (searchText == '') {
-        // please write something to display
-        document.getElementById('error-message').style.display = 'block';
-    }
-    else {
-        const url =`https://openlibrary.org/search.json?q=${searchText}`;
-     fetch(url)
-     .then(res=>res.json())
-     .then(data=>displayBooks(data.docs))
-      .catch(error=>displayError(error));
+
+    if (searchText === '') {
+        alert('search filed can not be empty')
+    } else {
+        totalSearchResult('hidden');
+        // load data 
+        const url = `https://openlibrary.org/search.json?q=${searchText}`
+        // console.log(url)
+        fetch(url)
+            .then((res) => res.json())
+            .then(data => displaySearchData(data.docs))
     }
 }
- const displayError = error => {
-    document.getElementById('error-message').style.display = 'block';
-} 
 
+const totalSearchResult = (style) => {
+    document.getElementById('search-result').style.visibility = style;
+    document.getElementById('total-result').style.visibility = style;
+}
 
+const displaySearchData = (docs) => {
+    // console.log(doc)
 
+    const searchResult = document.getElementById('search-result');
+    searchResult.textContent = '';
 
-    
-    
-    const displayBooks = docs=>{
-        //  console.log(docs) 
-        const displayBooksName =document.getElementById('book-details')
-         displayBooksName.innerText=docs.length
-        if(docs.length==0){
-            alert('book is not found')
-        } 
-        
-        
-         
-    
-         
-    
-         docs.slice(0,20).forEach(doc=>{ 
-            
+    // total result found 
+    const totalResult = document.getElementById('totalResult')
+    totalResult.innerText = docs.length
 
-        
-     console.log(doc)
-     const div =document.createElement('div')
+    if (docs.length === 0) {
+        // show no result found 
+        // document.getElementById('error').innerText = `search field cannot be empty`
+        alert('book is not found')
+    }
+
+    docs.slice(0, 20).forEach(doc => {
+        // console.log(doc)
+        const div = document.createElement('div')
         div.classList.add('col')
-        div.innerHTML=`
-        <div class="card">
-        <img class="card-img-top" src="https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg" alt="Card image cap">
-          <div class="card-body">
-            <h5 class="card-title"> BOOK Name :${doc.title}</h5>
-            <p class="card-text"> Author Name:${doc.author_name[0]}</p>
-
-             <p class="card-text"> Publisher:${doc.publisher[0]}</p> 
-            <p class="card-text">First Publisher:${doc.first_publish_year}</p>
-            
-          </div>
-        </div>
-        `
-            ;
-       displayBooksName.appendChild(div);
-        
-         })
-        }
+        div.innerHTML = ` <div class="card h-100 shadow rounded-3">
+                <img src="https://covers.openlibrary.org/b/id/${doc.cover_i ? doc.cover_i : -1}-M.jpg" class="card-img-top h-75" alt="not available">
+                <div class="card-body">
+                    <p class="card-title"> <strong>Book Name: </strong>  ${doc.title}</p>
+                    <p class="card-text"> <strong>Author Name: </strong> ${doc.author_name ? doc.author_name : 'unknown'}</p>
+                    <p class="card-text"> <strong>Publisher Name: </strong> ${doc.publisher[0] ? doc.publisher : 'unknown'}</p>
+                    <p class="card-text"><strong>First Publisher Name: </strong>${doc.first_publish_year ? doc.first_publish_year : 'unknown'}</p>
+                </div>
+            </div>
+            `;
+        searchResult.appendChild(div)
+    })
+    totalSearchResult('visible');
+}
